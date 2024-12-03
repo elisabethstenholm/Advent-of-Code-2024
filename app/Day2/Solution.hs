@@ -24,13 +24,10 @@ data LevelDiff = UnsafeDiff | SafeIncrease | SafeDecrease
   deriving (Eq, Show)
 
 diff :: Int -> Int -> LevelDiff
-diff prev current =
-  if prev - current `elem` [1, 2, 3]
-    then SafeDecrease
-    else
-      if current - prev `elem` [1, 2, 3]
-        then SafeIncrease
-        else UnsafeDiff
+diff prev current
+  | prev - current `elem` [1, 2, 3] = SafeDecrease
+  | current - prev `elem` [1, 2, 3] = SafeIncrease
+  | otherwise = UnsafeDiff
 
 diffs :: [Int] -> [LevelDiff]
 diffs l =
@@ -40,13 +37,10 @@ diffs l =
 type Safe = Bool
 
 safe1 :: [Int] -> Safe
-safe1 l =
-  if all (== SafeIncrease) (diffs l)
-    then True
-    else
-      if all (== SafeDecrease) (diffs l)
-        then True
-        else False
+safe1 l
+  | all (== SafeIncrease) (diffs l) = True
+  | all (== SafeDecrease) (diffs l) = True
+  | otherwise = False
 
 solve1 :: Text -> Int
 solve1 = solve $ length . filter id . fmap safe1
@@ -57,7 +51,7 @@ removeOneElement l =
    in filter ((== n) . length) $ subsequences l
 
 safe2 :: [Int] -> Safe
-safe2 = or . fmap safe1 . removeOneElement
+safe2 = any safe1 . removeOneElement
 
 solve2 :: Text -> Int
 solve2 = solve $ length . filter id . fmap (\l -> safe1 l || safe2 l)

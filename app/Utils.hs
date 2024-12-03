@@ -19,10 +19,13 @@ tryDefault ::
   (a -> Parser b) ->
   -- | Combined parser.
   Parser b
-tryDefault a b f = ((Just <$> try a) <|> return Nothing) >>= maybe b f
+tryDefault a b f = optional (try a) >>= maybe b f
 
 many' :: Parser a -> Parser [a]
 many' p = tryDefault p (return []) ((<$> many' p) . (:))
+
+some' :: Parser a -> Parser [a]
+some' p = (:) <$> p <*> many' p
 
 sepBy' :: Parser a -> Parser sep -> Parser [a]
 sepBy' p sep =
